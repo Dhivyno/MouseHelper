@@ -4,7 +4,7 @@ This is a camera-controlled mouse program that helps disabled people access the 
 
 ---
 
-### Gestures:
+### Gestures
 
 - **Moving**: Use your index finger to move the mouse around the screen. The index finger is detected as active when its tip's y-coordinate is higher than the joints connecting it to the palm.
 
