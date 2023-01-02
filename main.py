@@ -32,15 +32,16 @@ while True:
         current_x = prev_x + (x3 - prev_x) / smoothening
         current_y = prev_y + (y3 - prev_y) / smoothening
         autopy.mouse.move(screen_width - current_x, current_y)
-        cv2.circle(img, (x_index, y_index), 15, (255, 0, 255), cv2.FILLED)
+        cv2.circle(img, (x_index, y_index), 15, (255, 0, 255))
         prev_x, prev_y = current_x, current_y
 
     if finger_tips[1] == 1 and finger_tips[0] == 1:
         length, img, coords = detector.findDis(4, 8, img)
         if length < 40:
-            cv2.circle(img, (coords[4], coords[5]),
-                       15, (0, 255, 0), cv2.FILLED)
+            cv2.circle(img, (coords[4], coords[5]), 15, (0, 255, 0), cv2.FILLED)
             autopy.mouse.click()
+        else:
+            cv2.circle(img, (coords[4], coords[5]), 15, (0, 0, 255), cv2.FILLED)
 
     if finger_tips[1] == 1 and finger_tips[2] == 1:
         length, img, coords = detector.findDis(8, 12, img)
@@ -49,6 +50,7 @@ while True:
                 drag = True
                 x_drag, y_drag = screen_width - current_x, current_y
                 time.sleep(0.5)
+            cv2.circle(img, (coords[4], coords[5]), 15, (0, 255, 0), cv2.FILLED)
         elif drag:
             if length < 30:
                 drag = False
