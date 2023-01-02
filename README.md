@@ -20,7 +20,7 @@ This is a camera-controlled mouse program that helps disabled people access the 
 
 - OpenCV-python
 
-- AutoPy    (WARNING: AutoPy seems to install only in python 3.8.10, I have tried it in 3.10.4 but an error is thrown which is not related to pip so I presume it's a legacy dir problem)
+- AutoPy    (*WARNING*: AutoPy seems to install only in python 3.8.10, I have tried it in 3.10.4 but an error is thrown which is not related to pip so I presume it's a legacy dir problem)
 
 - Time
 
