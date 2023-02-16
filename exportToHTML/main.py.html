@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">cv2</span>
+<span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+<span class="s0">import </span><span class="s1">Functions </span><span class="s0">as </span><span class="s1">htm</span>
+<span class="s0">import </span><span class="s1">time</span>
+<span class="s0">import </span><span class="s1">autopy</span>
+
+<span class="s1">camera_width</span><span class="s0">, </span><span class="s1">camera_height = </span><span class="s2">640</span><span class="s0">, </span><span class="s2">480</span>
+<span class="s1">frame_rate = </span><span class="s2">30</span>
+<span class="s1">smoothening = </span><span class="s2">7</span>
+<span class="s1">prev_time = </span><span class="s2">0</span>
+<span class="s1">prev_x</span><span class="s0">, </span><span class="s1">prev_y = </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span>
+<span class="s1">current_x</span><span class="s0">, </span><span class="s1">current_y = </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span>
+<span class="s1">drag = </span><span class="s0">False</span>
+<span class="s1">cap = cv2.VideoCapture(</span><span class="s2">0</span><span class="s1">)</span>
+<span class="s1">cap.set(</span><span class="s2">3</span><span class="s0">, </span><span class="s1">camera_width)</span>
+<span class="s1">cap.set(</span><span class="s2">4</span><span class="s0">, </span><span class="s1">camera_height)</span>
+<span class="s1">detector = htm.Detector(hands_max=</span><span class="s2">1</span><span class="s1">)</span>
+<span class="s1">screen_width</span><span class="s0">, </span><span class="s1">screen_height = autopy.screen.size()</span>
+
+<span class="s0">while True</span><span class="s1">:</span>
+    <span class="s1">success</span><span class="s0">, </span><span class="s1">img = cap.read()</span>
+    <span class="s1">img = detector.find(img)</span>
+    <span class="s1">landmark_list</span><span class="s0">, </span><span class="s1">bbox = detector.findPos(img</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, True</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">len(landmark_list) != </span><span class="s2">0</span><span class="s1">:</span>
+        <span class="s1">x_index</span><span class="s0">, </span><span class="s1">y_index = landmark_list[</span><span class="s2">8</span><span class="s1">][</span><span class="s2">1</span><span class="s1">:]</span>
+        <span class="s1">x_middle</span><span class="s0">, </span><span class="s1">y_middle = landmark_list[</span><span class="s2">12</span><span class="s1">][</span><span class="s2">1</span><span class="s1">:]</span>
+
+    <span class="s1">finger_tips = detector.finger_tips_active()</span>
+    <span class="s0">if </span><span class="s1">finger_tips[</span><span class="s2">1</span><span class="s1">] == </span><span class="s2">1 </span><span class="s0">and </span><span class="s1">finger_tips[</span><span class="s2">0</span><span class="s1">] == </span><span class="s2">0</span><span class="s1">:</span>
+        <span class="s1">x1 = np.interp(x_index</span><span class="s0">, </span><span class="s1">(frame_rate</span><span class="s0">, </span><span class="s1">camera_width - frame_rate)</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">screen_width))</span>
+        <span class="s1">y1 = np.interp(y_index</span><span class="s0">, </span><span class="s1">(frame_rate</span><span class="s0">, </span><span class="s1">camera_height - frame_rate)</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">screen_height))</span>
+        <span class="s1">current_x = prev_x + (x1 - prev_x) / smoothening</span>
+        <span class="s1">current_y = prev_y + (y1 - prev_y) / smoothening</span>
+        <span class="s1">autopy.mouse.move(screen_width - current_x</span><span class="s0">, </span><span class="s1">current_y)</span>
+        <span class="s1">cv2.circle(img</span><span class="s0">, </span><span class="s1">(x_index</span><span class="s0">, </span><span class="s1">y_index)</span><span class="s0">, </span><span class="s2">15</span><span class="s0">, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">255</span><span class="s1">))</span>
+        <span class="s1">prev_x</span><span class="s0">, </span><span class="s1">prev_y = current_x</span><span class="s0">, </span><span class="s1">current_y</span>
+
+    <span class="s0">if </span><span class="s1">finger_tips[</span><span class="s2">1</span><span class="s1">] == </span><span class="s2">1 </span><span class="s0">and </span><span class="s1">finger_tips[</span><span class="s2">0</span><span class="s1">] == </span><span class="s2">1</span><span class="s1">:</span>
+        <span class="s1">length</span><span class="s0">, </span><span class="s1">img</span><span class="s0">, </span><span class="s1">coords = detector.findDis(</span><span class="s2">4</span><span class="s0">, </span><span class="s2">8</span><span class="s0">, </span><span class="s1">img)</span>
+        <span class="s0">if </span><span class="s1">length &lt; </span><span class="s2">40</span><span class="s1">:</span>
+            <span class="s1">cv2.circle(img</span><span class="s0">, </span><span class="s1">(coords[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">, </span><span class="s1">coords[</span><span class="s2">5</span><span class="s1">])</span><span class="s0">, </span><span class="s2">15</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">0</span><span class="s1">)</span><span class="s0">, </span><span class="s1">cv2.FILLED)</span>
+            <span class="s1">autopy.mouse.click()</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s1">cv2.circle(img</span><span class="s0">, </span><span class="s1">(coords[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">, </span><span class="s1">coords[</span><span class="s2">5</span><span class="s1">])</span><span class="s0">, </span><span class="s2">15</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">255</span><span class="s1">)</span><span class="s0">, </span><span class="s1">cv2.FILLED)</span>
+
+    <span class="s0">if </span><span class="s1">finger_tips[</span><span class="s2">1</span><span class="s1">] == </span><span class="s2">1 </span><span class="s0">and </span><span class="s1">finger_tips[</span><span class="s2">2</span><span class="s1">] == </span><span class="s2">1</span><span class="s1">:</span>
+        <span class="s1">length</span><span class="s0">, </span><span class="s1">img</span><span class="s0">, </span><span class="s1">coords = detector.findDis(</span><span class="s2">8</span><span class="s0">, </span><span class="s2">12</span><span class="s0">, </span><span class="s1">img)</span>
+        <span class="s0">if not </span><span class="s1">drag:</span>
+            <span class="s0">if </span><span class="s1">length &lt; </span><span class="s2">30</span><span class="s1">:</span>
+                <span class="s1">drag = </span><span class="s0">True</span>
+                <span class="s1">x_drag</span><span class="s0">, </span><span class="s1">y_drag = screen_width - current_x</span><span class="s0">, </span><span class="s1">current_y</span>
+                <span class="s1">time.sleep(</span><span class="s2">0.5</span><span class="s1">)</span>
+            <span class="s1">cv2.circle(img</span><span class="s0">, </span><span class="s1">(coords[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">, </span><span class="s1">coords[</span><span class="s2">5</span><span class="s1">])</span><span class="s0">, </span><span class="s2">15</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">0</span><span class="s1">)</span><span class="s0">, </span><span class="s1">cv2.FILLED)</span>
+        <span class="s0">elif </span><span class="s1">drag:</span>
+            <span class="s0">if </span><span class="s1">length &lt; </span><span class="s2">30</span><span class="s1">:</span>
+                <span class="s1">drag = </span><span class="s0">False</span>
+                <span class="s1">autopy.mouse.move(x_drag</span><span class="s0">, </span><span class="s1">y_drag)</span>
+                <span class="s1">autopy.mouse.toggle(down=</span><span class="s0">True</span><span class="s1">)</span>
+                <span class="s1">autopy.mouse.smooth_move(screen_width - current_x</span><span class="s0">, </span><span class="s1">current_y)</span>
+                <span class="s1">autopy.mouse.toggle(down=</span><span class="s0">False</span><span class="s1">)</span>
+            <span class="s1">cv2.circle(img</span><span class="s0">, </span><span class="s1">(coords[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">, </span><span class="s1">coords[</span><span class="s2">5</span><span class="s1">])</span><span class="s0">, </span><span class="s2">15</span><span class="s0">, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">)</span><span class="s0">, </span><span class="s1">cv2.FILLED)</span>
+
+
+    <span class="s1">current_time = time.time()</span>
+    <span class="s1">prev_time = current_time</span>
+    <span class="s1">cv2.imshow(</span><span class="s3">&quot;Image&quot;</span><span class="s0">, </span><span class="s1">img)</span>
+    <span class="s1">cv2.waitKey(</span><span class="s2">1</span><span class="s1">)</span></pre>
+</body>
+</html>
